@@ -1,0 +1,13 @@
+- name: HAPROXY - EQUILIBRAGE DE CHARGE
+  
+  vars:
+    haproxy_backend_servers:
+      - name: machine_projet_ansible
+        address: 172.19.10.158:8080
+ 
+      - name: machine_formation
+        address: 172.19.10.72:8080
+  
+  hosts: localhost 
+  roles:
+    - haproxy

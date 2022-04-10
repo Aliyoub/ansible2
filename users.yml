@@ -1,0 +1,10 @@
+- utilisateurs :
+    - nom : jean
+      type : dev
+    - nom : Philippe
+      type : dev
+    - nom : Christian
+      type : test
+    - nom : Nicolas
+      type : test
+

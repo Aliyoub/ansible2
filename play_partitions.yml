@@ -1,0 +1,86 @@
+- name: GESTION DES DISQUES ET PARTITIONS
+  hosts:
+    - projet
+  
+  tasks:
+    - name: Création de la partition sdd1 sur sdd
+      parted:
+        device: /dev/sdd
+        number: 1
+        state: present
+        part_end: 100MB
+      tags:
+        - sdd1
+      
+
+    - name: Création de la partition sdd2 sur sdd
+      parted:
+        device: /dev/sdd
+        number: 2
+        state: present
+        part_start: 100MB
+        part_end: 200MB
+      tags:
+        - sdd2
+
+
+    - name: Création du volume de groupe à partir de sdd1 et sdd2
+      lvg:
+        vg: my_vg1
+        pvs: /dev/sdd1,/dev/sdd2
+        state: present
+      tags:
+        - my_vg1
+      
+    - name: Création du volume logique de 120Mo, rattaché à my_vg1
+      lvol:
+        vg: my_vg1
+        lv: my_lv1
+        size: 120M
+        state: present
+      tags:
+        - my_lv1
+      
+    - name: Création du système fichiers XFS
+      filesystem:
+        fstype: xfs
+        dev: /dev/my_vg1/my_lv1
+        state: present
+      tags:
+        - xfs
+      
+
+    - name: Création du repertoire de montage
+      file:
+        path: /my_mnt/
+        state: directory
+        mode: 0777
+      tags:
+        - create_my_mnt
+      
+
+    - name: Montage automatique du volume logique
+      mount:
+        path: /my_mnt/
+        src: /dev/my_vg1/my_lv1
+        fstype: xfs 
+        state: present
+      tags:
+        - montage_auto
+      
+    
+    - name: Récupération du UUID du volume logique /dev/my_vg1/my_lv1
+      command: blkid -s UUID -o value /dev/my_vg1/my_lv1
+      register: get_UUID
+      tags:
+        - get_UUID
+
+
+    - name: Deuxième méthode - Montage automatique du volume logique avec UUID
+      mount:
+        path: /my_mnt/
+        src: UUID="{{ get_UUID.stdout }}"
+        fstype: xfs 
+        state: present
+      tags:
+        - montage_auto_UUID 

@@ -1,0 +1,59 @@
+- name: GESTION DES PAQUETS ET DE LA BANNIERE
+  hosts:
+    - projet
+    - test
+  tasks:
+     - name: Mise à jour de tous les paquets
+       yum:
+         name: '*'
+         state: latest
+      
+     - name: Installation de httpd
+       yum:
+         name: httpd
+         state: latest
+       notify:
+         - Restart httpd
+     
+     - name: Personnalisation de la bannière
+       template:
+         src: motd.j2
+         dest: /etc/motd
+         mode: 0644
+       when: ('projet' in group_names)
+       tags: 
+         - centos_package_manager
+      
+     - name: Mise à jour de tous les paquets
+       apt:
+         name: '*'
+         state: latest
+     
+     - name: Installation de apache2
+       apt:
+         name: apache2
+         state: latest
+       notify:
+         - Restart apache2
+     
+     - name: Personnalisation de la bannière
+       template:
+         src: motd.j2
+         dest: /etc/motd
+         mode: 0644
+       when: ('test' in group_names) 
+       tags: 
+         - ubuntu_package_manager
+      
+  handlers:
+    - name: Restart httpd 
+      service:
+        name: httpd
+        state: restarted
+        enabled: true
+   
+    - name: Restart apache2
+      service:
+        name: apache2
+        state: restarted
+        enabled: true

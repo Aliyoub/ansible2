@@ -1,0 +1,16 @@
+- name: "Ecriture dans les machines projet et test "
+  hosts:
+    - projet
+    - test
+  tasks:
+    - name: "Ecrire developpement dans les machines projet"
+      copy:
+        content: "developpement"
+        dest: /etc/type
+      when: ('projet' in group_names)
+    - name: "Ecrire test dans les machines test"
+      copy:
+        content: "test"
+        dest: /etc/type
+      when: ('test' in group_names)
+

@@ -1,0 +1,48 @@
+- name: GESTION DES UTILISATEURS
+  hosts:
+    - projet
+    - test
+  
+  vars_files:
+    - users.yml
+    - mdp.yml
+  
+  tasks:
+    - name: Création du groupe dev dans les machines du groupe projet
+      group:
+        name: dev
+        state: present
+      when: ("projet" in group_names)
+      tags:
+        - ajout_groupe_projet
+      
+    - name: Création du groupe testeur dans les machines du groupe test
+      group:
+        name: test
+        state: present
+      when: ("test" in group_names)
+      tags:
+        - ajout_groupe_test
+
+    - name: Ajout des utilisateurs dev 
+      user:
+        name: "{{ item.nom }}"
+        password: "{{ 'mdp_dev' | password_hash('sha512') }}"
+        group: dev
+        state: present
+      loop: "{{ utilisateurs }}"
+      when: (item.type == "dev") and ("projet" in group_names)
+      tags:
+        - ajout_utilisateurs_dev
+
+    - name: Ajout des utilisateurs testeurs 
+      user:
+        name: "{{ item.nom }}"
+        password: "{{ 'mdp_test' | password_hash('sha512') }}"
+        groups: test
+        state: present
+      loop: "{{ utilisateurs }}"
+      when: (item.type == "test") and ("test" in group_names)
+      tags:
+        - ajout_utilisateurs_testeurs
+

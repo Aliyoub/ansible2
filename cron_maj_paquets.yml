@@ -1,0 +1,15 @@
+- name: MISE A JOUR DES PAQUETS SUR LES MACHINES DU GROUPE TEST
+  hosts:
+    - projet
+    - test
+  
+  tasks:
+    - name: "Mise à jour des paquets"
+      cron:
+        user: "ansible"       
+        minute: "0"
+        hour: "1"
+        day: "*"
+        job: 'apt upgrade "*"'
+        state: present
+      when: ("test" in group_names) 
